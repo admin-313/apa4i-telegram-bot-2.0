@@ -3,3 +3,6 @@ class ConfigException(Exception):
 
 class WhitelistConfigException(ConfigException):
     pass
+
+class WhitelistConfigFileNotFound(ConfigException):
+    pass
