@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from datetime import datetime
 from pydantic import TypeAdapter, ValidationError
 from config.schemas import User
 from config.exceptions import (
@@ -38,4 +39,37 @@ class JSONConfigReader:
 
 
 class JSONConfigWriter:
-    pass
+
+    def add_whitelisted_user(
+        self, id: int, member_since: datetime, is_superuser: bool, last_known_name: str
+    ) -> User:
+        try:
+            user: User = User(
+                id=id,
+                member_since=member_since,
+                is_superuser=is_superuser,
+                last_known_name=last_known_name,
+            )
+            
+            json_content: str = user.model_dump_json()
+            self._append_to_json_db(json_content)
+        
+            return user
+        
+        except ValidationError as ve:
+            logger.error(f"Can't write unvalidated string to db: {str(ve)}")
+            raise WhitelistConfigValidationError(
+                "Faulty data provided, terminating write call"
+            )
+
+    def _append_to_json_db(self, content: str) -> str:
+        try:
+            with open(USERS_CONFIG_PATH, "a") as json_file:
+                json_file.write(content)
+
+            return content
+        except FileNotFoundError:
+            logger.critical(f"The users.json config file doesn't seem to exist")
+            raise WhitelistConfigFileNotFound(
+                "The config file doesn't seem to exist. Have you renamed it to users.json?"
+            )
