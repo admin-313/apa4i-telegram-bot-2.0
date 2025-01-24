@@ -6,3 +6,6 @@ class WhitelistConfigException(ConfigException):
 
 class WhitelistConfigFileNotFound(ConfigException):
     pass
+
+class WhitelistConfigValidationError(ConfigException):
+    pass
