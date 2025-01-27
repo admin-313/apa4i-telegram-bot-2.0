@@ -1,8 +1,8 @@
 import os
 import logging
 from pydantic import ValidationError
-from bot.exceptions import ConfigurationException
-from bot.schemas import BotConfiguration
+from main.exceptions import ConfigurationException
+from main.schemas import BotConfiguration
 
 logger = logging.getLogger(__name__)
 
