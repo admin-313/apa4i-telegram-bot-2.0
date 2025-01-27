@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 
 class BotConfiguration(BaseModel):
@@ -6,8 +6,8 @@ class BotConfiguration(BaseModel):
 
 
 class AdminTelegramIdConfiguration(BaseModel):
-    admin_telegram_id: str
+    admin_telegram_id: int
 
 
 class LinkToFbParserConfiguration(BaseModel):
-    link_to_fb_parser: str
+    link_to_fb_parser: HttpUrl
