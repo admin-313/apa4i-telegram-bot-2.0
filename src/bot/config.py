@@ -1,16 +1,12 @@
 import os
 import logging
-import asyncio
 from pydantic import ValidationError
 from bot.exceptions import ConfigurationException
 from bot.schemas import BotConfiguration
 
+logger = logging.getLogger(__name__)
 
 async def main() -> None:
-    logging.basicConfig(
-        format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p"
-    )
-    logger = logging.getLogger(__name__)
 
     try:
         config = BotConfiguration(
@@ -22,7 +18,3 @@ async def main() -> None:
     except ValidationError as ve:
         logger.critical(f"Could not load configurational variables: {str(ve)}")
         raise ConfigurationException("Have you defined all env variables needed?")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

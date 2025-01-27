@@ -2,8 +2,8 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from pydantic import TypeAdapter, ValidationError
-from config.schemas import User
-from config.exceptions import (
+from whitelist.schemas import User
+from whitelist.exceptions import (
     WhitelistConfigFileNotFound,
     WhitelistConfigValidationError,
 )
