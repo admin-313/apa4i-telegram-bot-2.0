@@ -2,8 +2,8 @@ import os
 import logging
 import asyncio
 from pydantic import ValidationError
-from exceptions import ConfigurationException
-from schemas import BotConfiguration
+from bot.exceptions import ConfigurationException
+from bot.schemas import BotConfiguration
 
 
 async def main() -> None:
