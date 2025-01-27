@@ -1,12 +1,12 @@
 import os
 import logging
 from pydantic import ValidationError
-from main.exceptions import (
+from config.exceptions import (
     BotTokenConfigurationException,
     LinkToFbParserConfigurationException,
     AdminTelegramIdConfigurationException,
 )
-from main.schemas import (
+from config.schemas import (
     BotConfiguration,
     AdminTelegramIdConfiguration,
     LinkToFbParserConfiguration,
