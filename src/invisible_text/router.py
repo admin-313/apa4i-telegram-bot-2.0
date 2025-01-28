@@ -13,14 +13,12 @@ invisible_text_router = Router()
 @invisible_text_router.callback_query(
     InvisibleTextCallback.filter(F.action == "get_invisible_text")
 )
-async def invisible_text_callback(
-    callback: CallbackQuery, state: FSMContext
-) -> None:
+async def invisible_text_callback(callback: CallbackQuery, state: FSMContext) -> None:
     message = callback.message
     if type(message) is Message:
         await state.set_state(InvisibleTextForm.give_your_text)
-        await message.edit_caption("Введите текст для преобразования:")  
-        await message.edit_reply_markup(reply_markup=get_invisible_text_markup())  
+        await message.edit_caption("Введите текст для преобразования:")
+        await message.edit_reply_markup(reply_markup=get_invisible_text_markup())
 
 
 @invisible_text_router.message(InvisibleTextForm.give_your_text)
