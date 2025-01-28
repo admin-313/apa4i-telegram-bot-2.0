@@ -13,8 +13,8 @@ root_router = Router()
 
 
 @root_router.message(Command("start"))
-async def start_command(message: Message, state: FSMContext) -> None:
-    if LOGO_FILE_ID:
+async def start_command(message: Message, state: FSMContext, ) -> None:
+    if LOGO_FILE_ID and type(message) is Message:
         await state.clear()
         await message.answer_photo(
             photo=LOGO_FILE_ID,
@@ -22,12 +22,22 @@ async def start_command(message: Message, state: FSMContext) -> None:
             reply_markup=get_main_menu_markup(),
         )
 
+@root_router.callback_query(RootCallback.filter(F.action == "new_root"))
+async def send_new_root(query: CallbackQuery, state: FSMContext) -> None:
+    if LOGO_FILE_ID and type(query.message) is Message:
+        await state.clear()
+        await query.message.answer_photo(
+            photo=LOGO_FILE_ID,
+            caption="Главное Меню",
+            reply_markup=get_main_menu_markup(),
+        )
+
 
 @root_router.callback_query(RootCallback.filter(F.action == "root"))
-async def root_callback(callback: CallbackQuery, state: FSMContext) -> None:
-    message = callback.message
+async def root_callback(query: CallbackQuery, state: FSMContext) -> None:
+    message = query.message
     if type(message) is Message:
         await state.clear()
         await message.edit_caption(caption="Главное Меню")
         if message.reply_markup:
-            await callback.message.edit_reply_markup(reply_markup=get_main_menu_markup())  # type: ignore
+            await message.edit_reply_markup(reply_markup=get_main_menu_markup())
