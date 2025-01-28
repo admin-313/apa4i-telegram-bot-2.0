@@ -13,7 +13,7 @@ root_router = Router()
 
 
 @root_router.message(Command("start"))
-async def start_command(message: Message, state: FSMContext, ) -> None:
+async def start_command(message: Message, state: FSMContext) -> None:
     if LOGO_FILE_ID and type(message) is Message:
         await state.clear()
         await message.answer_photo(
