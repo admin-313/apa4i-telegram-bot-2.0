@@ -1,4 +1,5 @@
 import os
+from aiogram.fsm.context import FSMContext
 from aiogram import Router, F
 from aiogram.types.message import Message
 from aiogram.filters.command import Command
@@ -12,8 +13,9 @@ root_router = Router()
 
 
 @root_router.message(Command("start"))
-async def start_command(message: Message) -> None:
+async def start_command(message: Message, state: FSMContext) -> None:
     if LOGO_FILE_ID:
+        await state.clear()
         await message.answer_photo(
             photo=LOGO_FILE_ID,
             caption="Главное Меню",
@@ -22,9 +24,10 @@ async def start_command(message: Message) -> None:
 
 
 @root_router.callback_query(RootCallback.filter(F.action == "root"))
-async def root_callback(callback: CallbackQuery) -> None:
+async def root_callback(callback: CallbackQuery, state: FSMContext) -> None:
     message = callback.message
     if type(message) is Message:
+        await state.clear()
         await message.edit_caption(caption="Главное Меню")
         if message.reply_markup:
             await callback.message.edit_reply_markup(reply_markup=get_main_menu_markup())  # type: ignore

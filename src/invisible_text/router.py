@@ -3,7 +3,7 @@ from aiogram.types.message import Message
 from aiogram.types.callback_query import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from invisible_text.callbacks import InvisibleTextCallback
-from invisible_text.form import Form
+from src.invisible_text.fsm_states import InvisibleTextForm
 from invisible_text.buttons import get_invisible_text_markup
 from invisible_text.service import get_unique_text
 
@@ -14,15 +14,19 @@ invisible_text_router = Router()
     InvisibleTextCallback.filter(F.action == "get_invisible_text")
 )
 async def invisible_text_callback(
-    query: CallbackQuery, callback_data: InvisibleTextCallback, state: FSMContext
+    callback: CallbackQuery, state: FSMContext
 ) -> None:
-    await state.set_state(Form.get_unique_text)
-    await query.message.edit_caption("Введите текст для преобразования:")  # type: ignore
-    await query.message.edit_reply_markup(reply_markup=get_invisible_text_markup())  # type: ignore
+    message = callback.message
+    if type(message) is Message:
+        await state.set_state(InvisibleTextForm.give_your_text)
+        await message.edit_caption("Введите текст для преобразования:")  
+        await message.edit_reply_markup(reply_markup=get_invisible_text_markup())  
 
 
-@invisible_text_router.message(Form.text_accepted)
+@invisible_text_router.message(InvisibleTextForm.give_your_text)
 async def return_invisible_test(message: Message, state: FSMContext) -> None:
-    await state.clear()
     if message.text:
         await message.reply(get_unique_text(message.text))
+        await state.clear()
+    else:
+        await message.reply(text="Введите текст сообщением")
