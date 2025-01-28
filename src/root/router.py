@@ -4,8 +4,8 @@ from aiogram import Router, F
 from aiogram.types.message import Message
 from aiogram.filters.command import Command
 from aiogram.types.callback_query import CallbackQuery
-from bot.buttons import get_main_menu_markup
-from bot.callbacks import RootCallback
+from root.buttons import get_main_menu_markup
+from root.callbacks import RootCallback
 
 LOGO_FILE_ID = os.getenv("LOGO_FILE_ID")
 

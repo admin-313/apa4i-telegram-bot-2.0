@@ -1,5 +1,5 @@
 from aiogram import Dispatcher
-from bot.router import root_router
+from root.router import root_router
 from invisible_text.router import invisible_text_router
 
 def get_dispatcher() -> Dispatcher:

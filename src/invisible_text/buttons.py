@@ -1,6 +1,6 @@
 from aiogram.types.inline_keyboard_markup import InlineKeyboardMarkup
 from aiogram.types.inline_keyboard_button import InlineKeyboardButton
-from bot.callbacks import RootCallback
+from root.callbacks import RootCallback
 from invisible_text.callbacks import InvisibleTextCallback
 
 
