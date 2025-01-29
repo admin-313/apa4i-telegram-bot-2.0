@@ -2,6 +2,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Message
 from typing import Any, Callable, Awaitable
 from auth.database.json_driver.drivers import JSONConfigReader
+from auth.schemas import User
 
 
 class AuthMiddleware(BaseMiddleware):
@@ -15,4 +16,7 @@ class AuthMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: dict[str, Any],
     ) -> Any:
-        pass
+        if isinstance(event, Message) and event.from_user:
+            whitelisted_users: list[User] = self.json_reader.get_whitelisted_users()
+            if event.from_user.id in [user.id for user in whitelisted_users]:
+                return await handler(event, data)
