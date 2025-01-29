@@ -38,7 +38,7 @@ class JSONConfigReader:
             )
 
 
-class JSONConfigWriter:
+class JSONConfigWriter(JSONConfigReader):
 
     def add_whitelisted_user(
         self, id: int, member_since: datetime, is_superuser: bool, last_known_name: str

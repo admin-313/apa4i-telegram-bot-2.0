@@ -1,7 +1,7 @@
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Message
 from typing import Any, Callable, Awaitable
-from src.auth.database.service import JSONConfigReader
+from auth.database.json_driver.drivers import JSONConfigReader
 
 
 class AuthMiddleware(BaseMiddleware):
