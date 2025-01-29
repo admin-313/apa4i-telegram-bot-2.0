@@ -9,5 +9,5 @@ logger = logging.getLogger(__name__)
 
 def get_dispatcher() -> Dispatcher:
     dp = Dispatcher()
-    dp.include_routers(root_router, invisible_text_router, middleware_router)
+    dp.include_routers(middleware_router, root_router, invisible_text_router)
     return dp
