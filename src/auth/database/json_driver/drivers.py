@@ -8,7 +8,7 @@ from auth.database.exceptions import (
     WhitelistConfigValidationError,
 )
 
-USERS_CONFIG_PATH: Path = Path(__file__).parent / "db" / "users.json"
+USERS_CONFIG_PATH: Path = Path(__file__).parent.parent.parent.parent.parent / "db" / "users.json"
 
 logger = logging.getLogger(__name__)
 
