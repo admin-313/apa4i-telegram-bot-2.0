@@ -2,7 +2,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Message
 from typing import Any, Callable, Awaitable
 from whitelist.service import JSONConfigReader
-
+from whitelist.schemas import User
 
 class AuthMiddleware(BaseMiddleware):
 
@@ -15,4 +15,5 @@ class AuthMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: dict[str, Any],
     ) -> Any:
-        pass
+        whitelisted_users: list[User] = self.json_reader.get_whitelisted_users()
+        if event.
