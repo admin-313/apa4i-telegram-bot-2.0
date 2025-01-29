@@ -8,7 +8,9 @@ from auth.database.exceptions import (
     WhitelistConfigValidationError,
 )
 
-USERS_CONFIG_PATH: Path = Path(__file__).parent.parent.parent.parent.parent / "db" / "users.json"
+USERS_CONFIG_PATH: Path = (
+    Path(__file__).parent.parent.parent.parent.parent / "db" / "users.json"
+)
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +31,12 @@ class JSONConfigReader:
 
     def _get_users_db_content(self) -> str:
         try:
-            return USERS_CONFIG_PATH.read_text()
+            return (
+                USERS_CONFIG_PATH.read_text()
+                .replace("\r", "")
+                .replace("\n", "")
+                .replace(" ", "")
+            )
 
         except FileNotFoundError:
             logger.critical(f"The users.json config file doesn't seem to exist")
@@ -50,12 +57,12 @@ class JSONConfigWriter(JSONConfigReader):
                 is_superuser=is_superuser,
                 last_known_name=last_known_name,
             )
-            
+
             json_content: str = user.model_dump_json()
             self._append_to_json_db(json_content)
-        
+
             return user
-        
+
         except ValidationError as ve:
             logger.error(f"Can't write unvalidated string to db: {str(ve)}")
             raise WhitelistConfigValidationError(
