@@ -1,8 +1,11 @@
 from aiogram import Router
 from auth.auth_middleware import AuthMiddleware
-from src.auth.database.json_driver.drivers import JSONConfigReader
+from auth.database.json_driver.drivers import JSONConfigReader
+from auth.database.dispatcher import database_service_dispatcher
 
-# TODO Переместить ридеры конфигов в auth модуль
+
 middleware_router = Router()
 
-middleware_router.message.outer_middleware(AuthMiddleware(JSONConfigReader()))
+config_reader: JSONConfigReader = database_service_dispatcher["json_readonly"]()
+
+middleware_router.message.outer_middleware(AuthMiddleware(config_reader))
