@@ -1,7 +1,7 @@
 import logging
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Message
-from typing import Any, Callable, Awaitable, Dict
+from typing import Any, Callable, Awaitable
 from auth.database.json_driver.drivers import JSONConfigReader
 from auth.schemas import User
 
@@ -14,9 +14,9 @@ class AdminAuthMiddleware(BaseMiddleware):
 
     async def __call__(
         self,
-        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
         event: TelegramObject,
-        data: Dict[str, Any],
+        data: dict[str, Any],
     ) -> Any:
         if isinstance(event, Message) and event.from_user:
             whitelisted_users: list[User] = self.db_reader.get_whitelisted_users()
