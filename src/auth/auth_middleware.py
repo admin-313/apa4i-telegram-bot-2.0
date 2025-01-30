@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 class AuthMiddleware(BaseMiddleware):
 
-    def __init__(self, json_reader: JSONConfigReader) -> None:
-        self.json_reader = json_reader
+    def __init__(self, db_reader: JSONConfigReader) -> None:
+        self.db_reader = db_reader
 
     async def __call__(
         self,
@@ -20,7 +20,7 @@ class AuthMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ) -> Any:
         if isinstance(event, Message) and event.from_user:
-            whitelisted_users: list[User] = self.json_reader.get_whitelisted_users()
+            whitelisted_users: list[User] = self.db_reader.get_whitelisted_users()
             request_user_id: int = event.from_user.id
             if request_user_id in [user.id for user in whitelisted_users]:
                 logger.info(f"Request from id {request_user_id} has been accepted")
