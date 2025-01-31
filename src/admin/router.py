@@ -60,3 +60,8 @@ async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> 
             f"Argument validation error while adding User to the whitelist {str(ve)}"
         )
         await message.reply(text="Validation fail")
+
+
+@admin_commands_router.message(F.text, Command("get", prefix="/"))
+async def process_get_command(message: Message, db_reader: JSONConfigReader) -> None:
+    pass

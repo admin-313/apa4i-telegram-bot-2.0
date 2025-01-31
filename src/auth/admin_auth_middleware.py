@@ -33,6 +33,7 @@ class AdminAuthMiddleware(BaseMiddleware):
                 )
 
                 data["db_writer"] = self.db_writer
+                data["db_reader"] = self.db_reader
                 return await handler(event, data)
             else:
                 logger.info(
