@@ -1,10 +1,14 @@
 import logging
+from datetime import datetime, timezone
 from aiogram.filters.command import Command
 from aiogram.types.message import Message
 from aiogram import Router, F
+from pydantic import ValidationError
+from aiogram.utils.formatting import Code, Text
 from auth.admin_auth_middleware import AdminAuthMiddleware
 from auth.database.json_driver.drivers import JSONConfigReader, JSONConfigWriter
 from auth.database.dispatcher import database_service_dispatcher
+from auth.schemas import User
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +24,30 @@ admin_commands_router.message.middleware(
 
 
 @admin_commands_router.message(F.text, Command("add", prefix="/"))
-async def process_get_command(message: Message, db_writer: JSONConfigWriter) -> None:
-    logger.info("Process get command")
-    await message.answer(
-        text="".join(str(user.id) for user in db_writer.get_whitelisted_users())
-    )
+async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> None:
+    arguments: list[str] | None = message.text.split() if message.text else None
+    caller_telegram_id: int | None = message.from_user.id if message.from_user else None
+    
+    if not arguments or not caller_telegram_id:
+        return
+    try:    
+        if len(arguments) > 1 and arguments[1].isdigit():
+            user_id: int = int(arguments[1])
+            user = User(
+                id=user_id,
+                member_since=datetime.now(timezone.utc),
+                is_superuser=False,
+                last_known_name=None
+            )
+            db_writer.add_whitelisted_user(user=user)
+
+            logger.info(f"User {user_id} has been added to whitelist by admin {caller_telegram_id}")
+            reply_text: Text = Text("The user ", Code(user_id), " has been successfully whitelisted")
+            await message.reply(**reply_text.as_kwargs())
+
+        elif len(arguments) < 2:
+            reply_text: Text = Text("You have to provide user's id argument to perform this action! Example: \n", Code("/add 31457890"))
+            await message.reply(**reply_text.as_kwargs())
+    except ValidationError as ve:
+        logger.info(f"Argument validation error while adding User to the whitelist {str(ve)}")
+        await message.reply(text="Validation fail")
