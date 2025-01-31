@@ -46,20 +46,18 @@ class JSONConfigReader:
 
 class JSONConfigWriter(JSONConfigReader):
 
-    def add_whitelisted_user(
-        self, user: User
-    ) -> User:
-        json_content: str = user.model_dump_json()
-        self._append_to_json_db(json_content)
+    def add_whitelisted_user(self, user: User) -> User:
+        return self._append_to_json_db(user)
 
-        return user
-
-    def _append_to_json_db(self, content: str) -> str:
+    def _append_to_json_db(self, user: User) -> User:
         try:
-            with open(USERS_CONFIG_PATH, "a") as json_file:
-                json_file.write(content)
+            all_users: list[User] = self.get_whitelisted_users()
+            all_users.append(user)
+            USERS_CONFIG_PATH.write_bytes(
+                TypeAdapter(list[User]).dump_json(all_users, indent=4)
+            )
 
-            return content
+            return user
         except FileNotFoundError:
             logger.critical(f"The users.json config file doesn't seem to exist")
             raise WhitelistConfigFileNotFound(
