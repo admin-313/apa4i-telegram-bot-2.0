@@ -45,7 +45,7 @@ async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> 
             reply_text: Text = Text("The user ", Code(user_id), " has been successfully whitelisted")
             await message.reply(**reply_text.as_kwargs())
 
-        elif len(arguments) < 2:
+        else:
             reply_text: Text = Text("You have to provide user's id argument to perform this action! Example: \n", Code("/add 31457890"))
             await message.reply(**reply_text.as_kwargs())
     except ValidationError as ve:
