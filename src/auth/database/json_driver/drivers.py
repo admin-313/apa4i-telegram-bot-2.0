@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from datetime import datetime
 from pydantic import TypeAdapter, ValidationError
 from auth.schemas import User
 from auth.database.exceptions import (
@@ -48,15 +47,9 @@ class JSONConfigReader:
 class JSONConfigWriter(JSONConfigReader):
 
     def add_whitelisted_user(
-        self, id: int, member_since: datetime, is_superuser: bool, last_known_name: str
+        self, user: User
     ) -> User:
         try:
-            user: User = User(
-                id=id,
-                member_since=member_since,
-                is_superuser=is_superuser,
-                last_known_name=last_known_name,
-            )
 
             json_content: str = user.model_dump_json()
             self._append_to_json_db(json_content)
