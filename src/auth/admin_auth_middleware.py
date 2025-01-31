@@ -32,7 +32,7 @@ class AdminAuthMiddleware(BaseMiddleware):
                     f"The user {event.from_user.id} is authorised to call admin commands"
                 )
 
-                data["config_writer"] = self.db_writer
+                data["db_writer"] = self.db_writer
                 return await handler(event, data)
             else:
                 logger.info(
