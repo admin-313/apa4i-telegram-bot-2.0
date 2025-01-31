@@ -49,18 +49,10 @@ class JSONConfigWriter(JSONConfigReader):
     def add_whitelisted_user(
         self, user: User
     ) -> User:
-        try:
+        json_content: str = user.model_dump_json()
+        self._append_to_json_db(json_content)
 
-            json_content: str = user.model_dump_json()
-            self._append_to_json_db(json_content)
-
-            return user
-
-        except ValidationError as ve:
-            logger.error(f"Can't write unvalidated string to db: {str(ve)}")
-            raise WhitelistConfigValidationError(
-                "Faulty data provided, terminating write call"
-            )
+        return user
 
     def _append_to_json_db(self, content: str) -> str:
         try:
