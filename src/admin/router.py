@@ -5,6 +5,8 @@ from aiogram.types.message import Message
 from aiogram import Router, F
 from pydantic import ValidationError
 from aiogram.utils.formatting import Code, Text
+from admin.paginator.paginator import Paginator
+from admin.paginator.schemas import PaginatorResponce
 from auth.admin_auth_middleware import AdminAuthMiddleware
 from auth.database.json_driver.drivers import JSONConfigReader, JSONConfigWriter
 from auth.database.dispatcher import database_service_dispatcher
@@ -64,4 +66,11 @@ async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> 
 
 @admin_commands_router.message(F.text, Command("get", prefix="/"))
 async def process_get_command(message: Message, db_reader: JSONConfigReader) -> None:
-    pass
+    arguments: list[str] | None = message.text.split() if message.text else None
+    caller_telegram_id: int | None = message.from_user.id if message.from_user else None
+    if not arguments or not caller_telegram_id:
+        return
+    
+    paginator: Paginator = Paginator(elements_per_page=5, db_reader=db_reader)
+    responce: PaginatorResponce = paginator.get_page(target_page=int(arguments[1]))
+    await message.answer(text="".join([str(element.id) for element in responce.page_elements]))
