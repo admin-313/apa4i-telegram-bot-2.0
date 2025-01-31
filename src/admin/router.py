@@ -27,27 +27,36 @@ admin_commands_router.message.middleware(
 async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> None:
     arguments: list[str] | None = message.text.split() if message.text else None
     caller_telegram_id: int | None = message.from_user.id if message.from_user else None
-    
+
     if not arguments or not caller_telegram_id:
         return
-    try:    
+    try:
         if len(arguments) > 1 and arguments[1].isdigit():
             user_id: int = int(arguments[1])
             user = User(
                 id=user_id,
                 member_since=datetime.now(timezone.utc),
                 is_superuser=False,
-                last_known_name=None
+                last_known_name=None,
             )
             db_writer.add_whitelisted_user(user=user)
 
-            logger.info(f"User {user_id} has been added to whitelist by admin {caller_telegram_id}")
-            reply_text: Text = Text("The user ", Code(user_id), " has been successfully whitelisted")
+            logger.info(
+                f"User {user_id} has been added to whitelist by admin {caller_telegram_id}"
+            )
+            reply_text: Text = Text(
+                "The user ", Code(user_id), " has been successfully whitelisted"
+            )
             await message.reply(**reply_text.as_kwargs())
 
         else:
-            reply_text: Text = Text("You have to provide user's id argument to perform this action! Example: \n", Code("/add 31457890"))
+            reply_text: Text = Text(
+                "You have to provide user's id argument to perform this action! Example: \n",
+                Code("/add 31457890"),
+            )
             await message.reply(**reply_text.as_kwargs())
     except ValidationError as ve:
-        logger.info(f"Argument validation error while adding User to the whitelist {str(ve)}")
+        logger.info(
+            f"Argument validation error while adding User to the whitelist {str(ve)}"
+        )
         await message.reply(text="Validation fail")
