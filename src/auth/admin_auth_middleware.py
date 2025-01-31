@@ -2,15 +2,18 @@ import logging
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Message, CallbackQuery
 from typing import Any, Callable, Awaitable
-from auth.database.json_driver.drivers import JSONConfigReader
+from auth.database.json_driver.drivers import JSONConfigReader, JSONConfigWriter
 from auth.schemas import User
 
 logger = logging.getLogger(__name__)
 
 
 class AdminAuthMiddleware(BaseMiddleware):
-    def __init__(self, db_reader: JSONConfigReader) -> None:
+    def __init__(
+        self, db_reader: JSONConfigReader, db_writer: JSONConfigWriter
+    ) -> None:
         self.db_reader = db_reader
+        self.db_writer = db_writer
 
     async def __call__(
         self,
@@ -28,6 +31,8 @@ class AdminAuthMiddleware(BaseMiddleware):
                 logger.info(
                     f"The user {event.from_user.id} is authorised to call admin commands"
                 )
+
+                data["config_writer"] = self.db_writer
                 return await handler(event, data)
             else:
                 logger.info(
