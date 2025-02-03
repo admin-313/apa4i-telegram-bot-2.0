@@ -1,7 +1,7 @@
 import math
 from typing import Any
 from admin.paginator.exceptions import PageCantBeZero
-from admin.paginator.schemas import PaginatorResponce
+from admin.paginator.schemas import PaginatorResponse
 from auth.database.json_driver.drivers import JSONConfigReader
 
 
@@ -10,7 +10,7 @@ class Paginator:
         self.elements_per_page: int = elements_per_page
         self.db_reader: JSONConfigReader = db_reader
 
-    def get_page(self, target_page: int) -> PaginatorResponce:
+    def get_page(self, target_page: int) -> PaginatorResponse:
         max_pages: int = self.get_maximum_amount_of_pages()
         all_elements: list[Any] = self.db_reader.get_whitelisted_users()
 
@@ -22,7 +22,7 @@ class Paginator:
         start_index: int = (target_page - 1) * self.elements_per_page
         end_index: int = target_page * self.elements_per_page
 
-        return PaginatorResponce(
+        return PaginatorResponse(
             page_elements=all_elements[start_index:end_index],
             is_next_page=target_page < max_pages,
             current_page=target_page,
