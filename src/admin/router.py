@@ -11,7 +11,12 @@ from admin.paginator.exceptions import PageCantBeZero
 from admin.paginator.schemas import PaginatorResponse
 from admin.exceptions import BlankMessageException
 from admin.utils import get_args_from_command
-from admin.buttons import get_paginator_default_page_markup, get_paginator_last_page_markup, get_paginator_first_page_markup
+from admin.buttons import (
+    get_paginator_default_page_markup,
+    get_paginator_last_page_markup,
+    get_paginator_first_page_markup,
+)
+from admin.callbacks import AdminCallback
 from auth.admin_auth_middleware import AdminAuthMiddleware
 from auth.database.json_driver.drivers import JSONConfigReader, JSONConfigWriter
 from auth.database.dispatcher import database_service_dispatcher
@@ -91,20 +96,35 @@ async def process_get_command(message: Message, db_reader: JSONConfigReader) -> 
     else:
         paginator: Paginator = Paginator(elements_per_page=5, db_reader=db_reader)
         try:
-            response: PaginatorResponse = paginator.get_page(target_page=int(arguments[0]))
+            response: PaginatorResponse = paginator.get_page(
+                target_page=int(arguments[0])
+            )
         except PageCantBeZero:
-            reply_text: Text = Text("The argument can't be zero. Example of usage:\n", Code("/get 2"))
+            reply_text: Text = Text(
+                "The argument can't be zero. Example of usage:\n", Code("/get 2")
+            )
             return await message.reply(**reply_text.as_kwargs())
 
         keyboard_markup: InlineKeyboardMarkup | None = None
-        
-        if response.current_page == 1:
-            keyboard_markup = get_paginator_first_page_markup()
-        
-        elif not response.is_next_page:
-            keyboard_markup = get_paginator_last_page_markup()
-        else:
-            keyboard_markup = get_paginator_default_page_markup()
 
-        reply_text: Text = Text("".join([f"{user.id}\n" for user in response.page_elements]))
-        return await message.answer(reply_markup=keyboard_markup, **reply_text.as_kwargs())
+        if response.current_page == 1:
+            keyboard_markup = get_paginator_first_page_markup(
+                next_target_page=str(response.current_page + 1)
+            )
+
+        elif not response.is_next_page:
+            keyboard_markup = get_paginator_last_page_markup(
+                previous_target_page=str(response.current_page - 1)
+            )
+        else:
+            keyboard_markup = get_paginator_default_page_markup(
+                next_target_page=str(response.current_page + 1),
+                previous_target_page=str(response.current_page - 1),
+            )
+
+        reply_text: Text = Text(
+            "".join([f"{user.id}\n" for user in response.page_elements])
+        )
+        return await message.answer(
+            reply_markup=keyboard_markup, **reply_text.as_kwargs()
+        )
