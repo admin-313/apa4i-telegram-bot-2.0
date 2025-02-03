@@ -5,7 +5,9 @@ from root.bot import get_dispatcher
 from config.config import get_bot_configuration
 
 logging.basicConfig(
-    format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p", level=logging.INFO
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+    datefmt="%m/%d/%Y %I:%M:%S %p",
+    level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
 
