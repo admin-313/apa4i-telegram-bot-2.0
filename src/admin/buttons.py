@@ -3,7 +3,7 @@ from aiogram.types.inline_keyboard_button import InlineKeyboardButton
 from admin.callbacks import AdminCallback
 
 
-def get_paginator_first_page_markup(next_target_page: str) -> InlineKeyboardMarkup:
+def get_paginator_first_page_markup(next_target_page: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -18,7 +18,7 @@ def get_paginator_first_page_markup(next_target_page: str) -> InlineKeyboardMark
     )
 
 
-def get_paginator_last_page_markup(previous_target_page: str) -> InlineKeyboardMarkup:
+def get_paginator_last_page_markup(previous_target_page: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -34,7 +34,7 @@ def get_paginator_last_page_markup(previous_target_page: str) -> InlineKeyboardM
 
 
 def get_paginator_default_page_markup(
-    next_target_page: str, previous_target_page: str
+    next_target_page: int, previous_target_page: int
 ) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[

@@ -2,6 +2,7 @@ import logging
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Message, CallbackQuery
 from typing import Any, Callable, Awaitable
+from admin.paginator.paginator import Paginator
 from auth.database.json_driver.drivers import JSONConfigReader, JSONConfigWriter
 from auth.schemas import User
 
@@ -10,10 +11,11 @@ logger = logging.getLogger(__name__)
 
 class AdminAuthMiddleware(BaseMiddleware):
     def __init__(
-        self, db_reader: JSONConfigReader, db_writer: JSONConfigWriter
+        self, db_reader: JSONConfigReader, db_writer: JSONConfigWriter, paginator: Paginator
     ) -> None:
         self.db_reader = db_reader
         self.db_writer = db_writer
+        self.paginator = paginator
 
     async def __call__(
         self,
@@ -34,6 +36,7 @@ class AdminAuthMiddleware(BaseMiddleware):
 
                 data["db_writer"] = self.db_writer
                 data["db_reader"] = self.db_reader
+                data["paginator"] = self.paginator
                 return await handler(event, data)
             else:
                 logger.info(

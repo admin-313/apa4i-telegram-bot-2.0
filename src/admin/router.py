@@ -1,11 +1,12 @@
 import logging
 from pydantic import ValidationError
+from aiogram import Router, F
 from datetime import datetime, timezone
 from aiogram.filters.command import Command
 from aiogram.types.message import Message
-from aiogram import Router, F
 from aiogram.types.inline_keyboard_markup import InlineKeyboardMarkup
 from aiogram.utils.formatting import Code, Text
+from aiogram.types.callback_query import CallbackQuery
 from admin.paginator.paginator import Paginator
 from admin.paginator.exceptions import PageCantBeZero
 from admin.paginator.schemas import PaginatorResponse
@@ -29,15 +30,16 @@ config_reader: JSONConfigReader = database_service_dispatcher["json_readonly"]()
 config_writer: JSONConfigWriter = database_service_dispatcher[
     "json_admin_only_writer"
 ]()
+paginator: Paginator = Paginator(elements_per_page=10, db_reader=config_reader)
 admin_commands_router = Router(name=__name__)
 
 admin_commands_router.message.middleware(
-    AdminAuthMiddleware(db_reader=config_reader, db_writer=config_writer)
+    AdminAuthMiddleware(db_reader=config_reader, db_writer=config_writer, paginator=paginator)
 )
 
 
 @admin_commands_router.message(F.text, Command("add", prefix="/"))
-async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> None:
+async def process_add_command(message: Message, db_writer: JSONConfigWriter, paginator: Paginator) -> None:
     # Rewrite args parser for the get_args
     arguments: list[str] | None = message.text.split() if message.text else None
     caller_telegram_id: int | None = message.from_user.id if message.from_user else None
@@ -77,8 +79,8 @@ async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> 
 
 
 @admin_commands_router.message(F.text, Command("get", prefix="/"))
-async def process_get_command(message: Message, db_reader: JSONConfigReader) -> Message:
-    # Move Paginator to DI with the admin middleware
+async def process_get_command(message: Message, paginator: Paginator) -> Message:
+
     arguments: list[str] | None = (
         get_args_from_command(message.text) if message.text else None
     )
@@ -94,7 +96,6 @@ async def process_get_command(message: Message, db_reader: JSONConfigReader) -> 
         )
         return await message.reply(**reply.as_kwargs())
     else:
-        paginator: Paginator = Paginator(elements_per_page=5, db_reader=db_reader)
         try:
             response: PaginatorResponse = paginator.get_page(
                 target_page=int(arguments[0])
@@ -109,17 +110,17 @@ async def process_get_command(message: Message, db_reader: JSONConfigReader) -> 
 
         if response.current_page == 1:
             keyboard_markup = get_paginator_first_page_markup(
-                next_target_page=str(response.current_page + 1)
+                next_target_page=response.current_page + 1
             )
 
         elif not response.is_next_page:
             keyboard_markup = get_paginator_last_page_markup(
-                previous_target_page=str(response.current_page - 1)
+                previous_target_page=response.current_page - 1
             )
         else:
             keyboard_markup = get_paginator_default_page_markup(
-                next_target_page=str(response.current_page + 1),
-                previous_target_page=str(response.current_page - 1),
+                next_target_page=response.current_page + 1,
+                previous_target_page=response.current_page - 1,
             )
 
         reply_text: Text = Text(
@@ -128,3 +129,12 @@ async def process_get_command(message: Message, db_reader: JSONConfigReader) -> 
         return await message.answer(
             reply_markup=keyboard_markup, **reply_text.as_kwargs()
         )
+
+@admin_commands_router.callback_query(
+    AdminCallback.filter(F.action == "next_page")
+)
+async def next_page_callback(callback: CallbackQuery, callback_data: AdminCallback, paginator: Paginator) -> None:
+    
+    response: PaginatorResponse = paginator.get_page(callback_data.target_page)
+    responce_text: Text = Text([user.id for user in response.page_elements])
+    await callback.message.edit_text()
