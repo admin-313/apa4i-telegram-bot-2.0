@@ -33,13 +33,17 @@ config_writer: JSONConfigWriter = database_service_dispatcher[
 paginator: Paginator = Paginator(elements_per_page=10, db_reader=config_reader)
 admin_commands_router = Router(name=__name__)
 
-admin_commands_router.message.middleware(
-    AdminAuthMiddleware(db_reader=config_reader, db_writer=config_writer, paginator=paginator)
+admin_auth_middleware = AdminAuthMiddleware(
+    db_reader=config_reader, db_writer=config_writer, paginator=paginator
 )
+admin_commands_router.message.middleware(admin_auth_middleware)
+admin_commands_router.callback_query.middleware(admin_auth_middleware)
 
 
 @admin_commands_router.message(F.text, Command("add", prefix="/"))
-async def process_add_command(message: Message, db_writer: JSONConfigWriter, paginator: Paginator) -> None:
+async def process_add_command(
+    message: Message, db_writer: JSONConfigWriter, paginator: Paginator
+) -> None:
     # Rewrite args parser for the get_args
     arguments: list[str] | None = message.text.split() if message.text else None
     caller_telegram_id: int | None = message.from_user.id if message.from_user else None
@@ -130,11 +134,33 @@ async def process_get_command(message: Message, paginator: Paginator) -> Message
             reply_markup=keyboard_markup, **reply_text.as_kwargs()
         )
 
-@admin_commands_router.callback_query(
-    AdminCallback.filter(F.action == "next_page")
-)
-async def next_page_callback(callback: CallbackQuery, callback_data: AdminCallback, paginator: Paginator) -> None:
-    
-    response: PaginatorResponse = paginator.get_page(callback_data.target_page)
-    responce_text: Text = Text([user.id for user in response.page_elements])
-    await callback.message.edit_text()
+
+@admin_commands_router.callback_query(AdminCallback.filter(F.action == "get_page"))
+async def get_page_callback(
+    callback: CallbackQuery, callback_data: AdminCallback, paginator: Paginator
+) -> None:
+    message = callback.message
+    if type(message) is Message and message.text:
+        response: PaginatorResponse = paginator.get_page(callback_data.target_page)
+        response_text: Text = Text(
+            f"Page {response.current_page} of {response.total_pages}\n",
+            *(Code(str(user.id) + "\n") for user in response.page_elements),
+        )
+        buttons: InlineKeyboardMarkup | None = None
+
+        if response.current_page != response.total_pages and response.current_page != 1:
+            buttons = get_paginator_default_page_markup(
+                next_target_page=response.current_page + 1,
+                previous_target_page=response.current_page - 1,
+            )
+        elif response.current_page == response.total_pages:
+            buttons = get_paginator_last_page_markup(
+                previous_target_page=response.current_page - 1
+            )
+        elif response.current_page == 1:
+            buttons = get_paginator_first_page_markup(
+                next_target_page=response.current_page + 1
+            )
+
+        await message.edit_text(**response_text.as_kwargs())
+        await message.edit_reply_markup(reply_markup=buttons)

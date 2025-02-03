@@ -10,7 +10,7 @@ def get_paginator_first_page_markup(next_target_page: int) -> InlineKeyboardMark
                 InlineKeyboardButton(
                     text="▶️",
                     callback_data=AdminCallback(
-                        action="next_page", target_page=next_target_page
+                        action="get_page", target_page=next_target_page
                     ).pack(),
                 )
             ]
@@ -25,7 +25,7 @@ def get_paginator_last_page_markup(previous_target_page: int) -> InlineKeyboardM
                 InlineKeyboardButton(
                     text="◀️",
                     callback_data=AdminCallback(
-                        action="previous_page", target_page=previous_target_page
+                        action="get_page", target_page=previous_target_page
                     ).pack(),
                 )
             ]
@@ -42,13 +42,13 @@ def get_paginator_default_page_markup(
                 InlineKeyboardButton(
                     text="◀️",
                     callback_data=AdminCallback(
-                        action="previous_page", target_page=previous_target_page
+                        action="get_page", target_page=previous_target_page
                     ).pack(),
                 ),
                 InlineKeyboardButton(
                     text="▶️",
                     callback_data=AdminCallback(
-                        action="next_page", target_page=next_target_page
+                        action="get_page", target_page=next_target_page
                     ).pack(),
                 ),
             ]
