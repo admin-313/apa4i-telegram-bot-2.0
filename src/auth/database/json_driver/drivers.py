@@ -62,6 +62,28 @@ class JSONConfigWriter(JSONConfigReader):
                 return new_users
         return []
 
+    def demote_if_exists(self, user_id: int) -> User | None:
+        if self.is_in_database(user_id):
+            old_list: list[User] = self.get_whitelisted_users()
+
+            new_list: list[User] = [
+                (
+                    User(
+                        id=user.id,
+                        member_since=user.member_since,
+                        is_superuser=False,
+                        last_known_name=user.last_known_name,
+                    )
+                    if user.id == user_id
+                    else user
+                )
+                for user in old_list
+            ]
+            self._rewrite_json_db(users=new_list)
+            return next((user for user in new_list if user.id == user_id), None)
+
+        return None
+
     def promote_if_exists(self, user_id: int) -> User | None:
         if self.is_in_database(user_id):
             old_list: list[User] = self.get_whitelisted_users()

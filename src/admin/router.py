@@ -13,7 +13,7 @@ from admin.exceptions import (
 )
 from admin.paginator.paginator import Paginator
 from admin.utils import get_args_from_command
-from admin.handlers import respond_to_get, respond_to_promote, respond_to_remove
+from admin.handlers import respond_to_demote, respond_to_get, respond_to_promote, respond_to_remove
 from admin.callbacks import AdminCallback
 from auth.admin_auth_middleware import AdminAuthMiddleware
 from auth.database.json_driver.drivers import JSONConfigReader, JSONConfigWriter
@@ -154,6 +154,27 @@ async def process_promote_command(
         else:
             reply_text: Text = Text(
                 "Invalid parameters passed. Example:\n", Code("/promote 342645978")
+            )
+            return await message.answer(**reply_text.as_kwargs())
+    else:
+
+        logger.error(f"The message {message} doesn't exist")
+        raise MessageInstanceNotFound("The message instance doesn't seem to exist")
+
+
+@admin_commands_router.message(F.text, Command("demote", prefix="/"))
+async def process_demote_command(
+    message: Message, db_writer: JSONConfigWriter
+) -> Message:
+    if type(message) is Message and message.text:
+        args_from_command: list[str] = get_args_from_command(command=message.text)
+        if args_from_command and args_from_command[0].isdigit():
+            return await respond_to_demote(
+                db_writer=db_writer, message=message, user_id=int(args_from_command[0])
+            )
+        else:
+            reply_text: Text = Text(
+                "Invalid parameters passed. Example:\n", Code("/demote 342645978")
             )
             return await message.answer(**reply_text.as_kwargs())
     else:

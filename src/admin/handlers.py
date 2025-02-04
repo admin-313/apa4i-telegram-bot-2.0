@@ -86,6 +86,24 @@ async def respond_to_promote(
         return await message.answer(**reply_text.as_kwargs())
     else:
         reply_text: Text = Text(
-            "The user ", Code(user_id), " is either not in database or already promoted"
+            "The user ",
+            Code(user_id),
+            " is either not in database or already has admin perms",
+        )
+        return await message.answer(**reply_text.as_kwargs())
+
+
+async def respond_to_demote(
+    message: Message, db_writer: JSONConfigWriter, user_id: int
+) -> Message:
+    result: User | None = db_writer.demote_if_exists(user_id=user_id)
+    if result:
+        reply_text: Text = Text("The user ", Code(result.id), " has been demoted")
+        return await message.answer(**reply_text.as_kwargs())
+    else:
+        reply_text: Text = Text(
+            "The user ",
+            Code(user_id),
+            " is either not in database or has no admin perms",
         )
         return await message.answer(**reply_text.as_kwargs())
