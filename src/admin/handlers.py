@@ -68,8 +68,8 @@ async def respond_to_remove(
 ) -> Message:
     result: list[User] = db_writer.remove_whitelisted_user_by_id_if_exists(user_id=user_id)
     if result:
-        reply_text: Text = Text("The user", Code(user_id), "has been revoked") 
+        reply_text: Text = Text("The user ", Code(user_id), " has been revoked") 
         return await message.answer(**reply_text.as_kwargs())
     else:
-        reply_text: Text = Text("The user", Code(user_id), "is not in the database")
+        reply_text: Text = Text("The user ", Code(user_id), " is not in the database")
         return await message.answer(**reply_text.as_kwargs())
