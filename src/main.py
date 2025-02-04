@@ -7,7 +7,7 @@ from config.config import get_bot_configuration
 logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
     datefmt="%m/%d/%Y %I:%M:%S %p",
-    level=logging.INFO,
+    level=logging.DEBUG,
 )
 logger = logging.getLogger(__name__)
 
