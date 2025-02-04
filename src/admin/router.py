@@ -6,7 +6,7 @@ from aiogram.filters.command import Command
 from aiogram.types.message import Message
 from aiogram.utils.formatting import Code, Text
 from aiogram.types.callback_query import CallbackQuery
-from admin.exceptions import MessageInstanceNotFound
+from admin.exceptions import MessageInstanceNotFound, UserInstanceNotFound, MessageIsEmpty
 from admin.paginator.paginator import Paginator
 from admin.utils import get_args_from_command
 from admin.handlers import respond_to_get
@@ -34,16 +34,27 @@ admin_commands_router.callback_query.middleware(admin_auth_middleware)
 
 
 @admin_commands_router.message(F.text, Command("add", prefix="/"))
-async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> None:
+async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> Message:
     # Rewrite args parser for the get_args
-    arguments: list[str] | None = message.text.split() if message.text else None
-    caller_telegram_id: int | None = message.from_user.id if message.from_user else None
+    if not message.from_user:
+        logger.error("Could not find caller's id")
+        raise UserInstanceNotFound("Caller's telegram id doesn't appear to be there")
+    
+    if type(message) is not Message:
+        logger.error("message type mismatch")
+        raise MessageInstanceNotFound(
+            f"The message type is not Message but {message.__class__.__name__}"
+        )
+    if not message.text:
+        logger.error("The Message is empty")
+        raise MessageIsEmpty("Message's text field can't be empty")
 
-    if not arguments or not caller_telegram_id:
-        return
+    arguments: list[str] = get_args_from_command(message.text)
+    caller_telegram_id: int = message.from_user.id
+
     try:
-        if len(arguments) > 1 and arguments[1].isdigit():
-            user_id: int = int(arguments[1])
+        if arguments and arguments[0].isdigit():
+            user_id: int = int(arguments[0])
             user = User(
                 id=user_id,
                 member_since=datetime.now(timezone.utc),
@@ -58,14 +69,14 @@ async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> 
             reply_text: Text = Text(
                 "The user ", Code(user_id), " has been successfully whitelisted"
             )
-            await message.reply(**reply_text.as_kwargs())
+            return await message.reply(**reply_text.as_kwargs())
 
         else:
             reply_text: Text = Text(
                 "You have to provide user's id argument to perform this action! Example: \n",
                 Code("/add 31457890"),
             )
-            await message.reply(**reply_text.as_kwargs())
+            return await message.reply(**reply_text.as_kwargs())
     except ValidationError as ve:
         logger.info(
             f"Argument validation error while adding User to the whitelist {str(ve)}"
