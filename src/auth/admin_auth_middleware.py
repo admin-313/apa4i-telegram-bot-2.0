@@ -11,7 +11,10 @@ logger = logging.getLogger(__name__)
 
 class AdminAuthMiddleware(BaseMiddleware):
     def __init__(
-        self, db_reader: JSONConfigReader, db_writer: JSONConfigWriter, paginator: Paginator
+        self,
+        db_reader: JSONConfigReader,
+        db_writer: JSONConfigWriter,
+        paginator: Paginator,
     ) -> None:
         self.db_reader = db_reader
         self.db_writer = db_writer

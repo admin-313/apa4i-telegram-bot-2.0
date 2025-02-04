@@ -19,7 +19,9 @@ invisible_text_router = Router()
 @invisible_text_router.callback_query(
     InvisibleTextCallback.filter(F.action == "get_invisible_text")
 )
-async def invisible_text_callback(callback: CallbackQuery, state: FSMContext) -> Message:
+async def invisible_text_callback(
+    callback: CallbackQuery, state: FSMContext
+) -> Message:
     message = callback.message
     if type(message) is Message:
         await state.set_state(InvisibleTextForm.give_your_text)
@@ -40,7 +42,9 @@ async def repeat_invisible_text_callback(
     if type(message) is Message and message.text:
         await state.set_state(InvisibleTextForm.give_your_text)
 
-        text_content = Text(Code(message.text), "\n\n", "Введите текст для преобразования")
+        text_content = Text(
+            Code(message.text), "\n\n", "Введите текст для преобразования"
+        )
         await message.edit_text(**text_content.as_kwargs())
         await message.edit_reply_markup(reply_markup=get_invisible_text_on_repeat())
         return message
@@ -54,8 +58,7 @@ async def return_invisible_test(message: Message, state: FSMContext) -> Message:
         text_content = Text(Code(get_unique_text(message.text)))
         await state.clear()
         return await message.reply(
-            reply_markup=get_invisible_text_on_success(),
-            **text_content.as_kwargs()
+            reply_markup=get_invisible_text_on_success(), **text_content.as_kwargs()
         )
     else:
         return await message.reply(text="Введите текст сообщением")

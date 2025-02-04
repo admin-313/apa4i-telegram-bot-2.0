@@ -25,7 +25,7 @@ class Paginator:
         return PaginatorResponse(
             page_elements=all_elements[start_index:end_index],
             current_page=target_page,
-            total_pages=max_pages
+            total_pages=max_pages,
         )
 
     def get_maximum_amount_of_pages(self) -> int:

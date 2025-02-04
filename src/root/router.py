@@ -17,7 +17,7 @@ root_router = Router()
 
 @root_router.message(Command("start"))
 async def start_command(message: Message, state: FSMContext) -> None:
-    #TODO Merge w/send_new_root
+    # TODO Merge w/send_new_root
     if LOGO_FILE_PATH and type(message) is Message:
         await state.clear()
         await message.answer_photo(
@@ -25,6 +25,7 @@ async def start_command(message: Message, state: FSMContext) -> None:
             caption="Главное Меню",
             reply_markup=get_main_menu_markup(),
         )
+
 
 @root_router.callback_query(RootCallback.filter(F.action == "new_root"))
 async def send_new_root(query: CallbackQuery, state: FSMContext) -> None:

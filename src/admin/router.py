@@ -13,7 +13,12 @@ from admin.exceptions import (
 )
 from admin.paginator.paginator import Paginator
 from admin.utils import get_args_from_command
-from admin.handlers import respond_to_demote, respond_to_get, respond_to_promote, respond_to_remove
+from admin.handlers import (
+    respond_to_demote,
+    respond_to_get,
+    respond_to_promote,
+    respond_to_remove,
+)
 from admin.callbacks import AdminCallback
 from auth.admin_auth_middleware import AdminAuthMiddleware
 from auth.database.json_driver.drivers import JSONConfigReader, JSONConfigWriter
