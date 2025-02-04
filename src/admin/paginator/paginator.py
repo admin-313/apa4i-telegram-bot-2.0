@@ -24,7 +24,6 @@ class Paginator:
 
         return PaginatorResponse(
             page_elements=all_elements[start_index:end_index],
-            is_next_page=target_page < max_pages,
             current_page=target_page,
             total_pages=max_pages
         )
