@@ -52,13 +52,14 @@ class JSONConfigWriter(JSONConfigReader):
     def add_whitelisted_user(self, user: User) -> User:
         return self._append_user_to_json_db(user)
         
-    def remove_whitelisted_user_if_exists(self, user: User) -> User | None:
-        if self.is_in_database(user.id):
+    def remove_whitelisted_user_by_id_if_exists(self, user_id: int) -> list[User]:
+        if self.is_in_database(user_id):
             users: list[User] = self.get_whitelisted_users()
-            new_users: list[User] = [usr for usr in users if usr.id != user.id]
+            new_users: list[User] = [usr for usr in users if usr.id != user_id]
             if len(users) != len(new_users):
                 self._rewrite_json_db(users=new_users)
-                return user
+                return new_users
+        return []
 
     def _append_user_to_json_db(self, user: User) -> User:
         try:
