@@ -1,34 +1,37 @@
 import os
+from pathlib import Path
 from aiogram.fsm.context import FSMContext
 from aiogram import Router, F
 from aiogram.types.message import Message
 from aiogram.filters.command import Command
 from aiogram.types.callback_query import CallbackQuery
+from aiogram.types import FSInputFile
 from root.buttons import get_main_menu_markup
 from root.callbacks import RootCallback
 
 LOGO_FILE_ID = os.getenv("LOGO_FILE_ID")
+LOGO_FILE_PATH = Path(__file__).parent.parent.parent / "media" / "logo.png"
 
 root_router = Router()
 
 
 @root_router.message(Command("start"))
 async def start_command(message: Message, state: FSMContext) -> None:
-    # передача фото через Path
-    if LOGO_FILE_ID and type(message) is Message:
+    #TODO Merge w/send_new_root
+    if LOGO_FILE_PATH and type(message) is Message:
         await state.clear()
         await message.answer_photo(
-            photo=LOGO_FILE_ID,
+            photo=FSInputFile(LOGO_FILE_PATH),
             caption="Главное Меню",
             reply_markup=get_main_menu_markup(),
         )
 
 @root_router.callback_query(RootCallback.filter(F.action == "new_root"))
 async def send_new_root(query: CallbackQuery, state: FSMContext) -> None:
-    if LOGO_FILE_ID and type(query.message) is Message:
+    if LOGO_FILE_PATH and type(query.message) is Message:
         await state.clear()
         await query.message.answer_photo(
-            photo=LOGO_FILE_ID,
+            photo=FSInputFile(LOGO_FILE_PATH),
             caption="Главное Меню",
             reply_markup=get_main_menu_markup(),
         )
