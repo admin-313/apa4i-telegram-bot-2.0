@@ -43,4 +43,4 @@ async def respond_to_get(
         await message.edit_reply_markup(reply_markup=buttons)
     else:
         if message.bot:
-            await message.bot.send_message(chat_id=message.chat.id, reply_markup=buttons, text=str(response_text))
+            await message.bot.send_message(**response_text.as_kwargs(), chat_id=message.chat.id, reply_markup=buttons)
