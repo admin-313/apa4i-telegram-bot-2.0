@@ -42,13 +42,16 @@ async def respond_to_get(
     if is_callback:
         await message.edit_text(**response_text.as_kwargs())
         await message.edit_reply_markup(reply_markup=buttons)
+        logger.debug(f"Sending /get responce as callback to message {message.message_id}")
         return message
     else:
-        if message.bot:
+        if message.bot and message.from_user:
+            logger.debug(f"Sending /get responce as message to user {message.from_user.id}")
             return await message.bot.send_message(
                 **response_text.as_kwargs(),
                 chat_id=message.chat.id,
                 reply_markup=buttons,
             )
         else:
+            logger.error("Bot instance was not in Message")
             raise BotInstanceNotFound("Could not get bot out of the Message")
