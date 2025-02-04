@@ -4,19 +4,11 @@ from aiogram import Router, F
 from datetime import datetime, timezone
 from aiogram.filters.command import Command
 from aiogram.types.message import Message
-from aiogram.types.inline_keyboard_markup import InlineKeyboardMarkup
 from aiogram.utils.formatting import Code, Text
 from aiogram.types.callback_query import CallbackQuery
 from admin.paginator.paginator import Paginator
-from admin.paginator.exceptions import PageCantBeZero
-from admin.paginator.schemas import PaginatorResponse
-from admin.exceptions import BlankMessageException
 from admin.utils import get_args_from_command
-from admin.buttons import (
-    get_paginator_default_page_markup,
-    get_paginator_last_page_markup,
-    get_paginator_first_page_markup,
-)
+from admin.handlers import respond_to_get
 from admin.callbacks import AdminCallback
 from auth.admin_auth_middleware import AdminAuthMiddleware
 from auth.database.json_driver.drivers import JSONConfigReader, JSONConfigWriter
@@ -41,9 +33,7 @@ admin_commands_router.callback_query.middleware(admin_auth_middleware)
 
 
 @admin_commands_router.message(F.text, Command("add", prefix="/"))
-async def process_add_command(
-    message: Message, db_writer: JSONConfigWriter, paginator: Paginator
-) -> None:
+async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> None:
     # Rewrite args parser for the get_args
     arguments: list[str] | None = message.text.split() if message.text else None
     caller_telegram_id: int | None = message.from_user.id if message.from_user else None
@@ -83,56 +73,14 @@ async def process_add_command(
 
 
 @admin_commands_router.message(F.text, Command("get", prefix="/"))
-async def process_get_command(message: Message, paginator: Paginator) -> Message:
-
-    arguments: list[str] | None = (
-        get_args_from_command(message.text) if message.text else None
-    )
-    caller_telegram_id: int | None = message.from_user.id if message.from_user else None
-
-    if arguments is None or not caller_telegram_id:
-        raise BlankMessageException(
-            "Could not execute /get command. The message is either inaccesible or server responce does not contain message key"
-        )
-    if not arguments or not arguments[0].isdigit():
-        reply: Text = Text(
-            "You have to provide a page argument as a digit. Example:\n", Code("/get 2")
-        )
-        return await message.reply(**reply.as_kwargs())
-    else:
-        try:
-            response: PaginatorResponse = paginator.get_page(
-                target_page=int(arguments[0])
+async def get_page_message(message: Message, paginator: Paginator) -> None:
+    if type(message) is Message and message.text:
+        args_from_command: list[str] = get_args_from_command(command=message.text)
+        if args_from_command and args_from_command[0].isdecimal():
+            page: int = int(args_from_command[0])
+            await respond_to_get(
+                page=page, paginator=paginator, message=message, is_callback=False
             )
-        except PageCantBeZero:
-            reply_text: Text = Text(
-                "The argument can't be zero. Example of usage:\n", Code("/get 2")
-            )
-            return await message.reply(**reply_text.as_kwargs())
-
-        keyboard_markup: InlineKeyboardMarkup | None = None
-
-        if response.current_page == 1:
-            keyboard_markup = get_paginator_first_page_markup(
-                next_target_page=response.current_page + 1
-            )
-
-        elif not response.is_next_page:
-            keyboard_markup = get_paginator_last_page_markup(
-                previous_target_page=response.current_page - 1
-            )
-        else:
-            keyboard_markup = get_paginator_default_page_markup(
-                next_target_page=response.current_page + 1,
-                previous_target_page=response.current_page - 1,
-            )
-
-        reply_text: Text = Text(
-            "".join([f"{user.id}\n" for user in response.page_elements])
-        )
-        return await message.answer(
-            reply_markup=keyboard_markup, **reply_text.as_kwargs()
-        )
 
 
 @admin_commands_router.callback_query(AdminCallback.filter(F.action == "get_page"))
@@ -141,26 +89,7 @@ async def get_page_callback(
 ) -> None:
     message = callback.message
     if type(message) is Message and message.text:
-        response: PaginatorResponse = paginator.get_page(callback_data.target_page)
-        response_text: Text = Text(
-            f"Page {response.current_page} of {response.total_pages}\n",
-            *(Code(str(user.id) + "\n") for user in response.page_elements),
+        page: int = callback_data.target_page
+        await respond_to_get(
+            page=page, message=message, paginator=paginator, is_callback=True
         )
-        buttons: InlineKeyboardMarkup | None = None
-
-        if response.current_page != response.total_pages and response.current_page != 1:
-            buttons = get_paginator_default_page_markup(
-                next_target_page=response.current_page + 1,
-                previous_target_page=response.current_page - 1,
-            )
-        elif response.current_page == response.total_pages:
-            buttons = get_paginator_last_page_markup(
-                previous_target_page=response.current_page - 1
-            )
-        elif response.current_page == 1:
-            buttons = get_paginator_first_page_markup(
-                next_target_page=response.current_page + 1
-            )
-
-        await message.edit_text(**response_text.as_kwargs())
-        await message.edit_reply_markup(reply_markup=buttons)
