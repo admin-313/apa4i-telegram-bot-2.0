@@ -6,7 +6,7 @@ Refactored and updated version of bot beloved by hundreds and admired by thousan
     - [ ] **Add SQLAlchemy**
     - [ ] **Add migrations via alembic**
 - [ ] **Add Docker support**
-- [ ] **Rewrite using Clean Architecture design pattern**
+- [ ] **Rewrite using Clean Architecture design approach**
 
 # Deployment strategy
 Add the following variables to your environment via docker compose or via your IDE if you're debugging:
