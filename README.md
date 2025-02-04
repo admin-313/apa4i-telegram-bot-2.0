@@ -1,6 +1,12 @@
 # apa4i-telegram-bot-2.0
 Refactored and updated version of bot beloved by hundreds and admired by thousands
 
+# TODO
+- [ ] **Add SQLite support**
+    - [ ] **Add SQLAlchemy**
+    - [ ] **Add migrations via alembic**
+- [ ] **Add Docker support**
+- [ ] **Rewrite using Clean Architecture design pattern**
 
 # Deployment strategy
 Add the following variables to your environment via docker compose or via your IDE if you're debugging:
