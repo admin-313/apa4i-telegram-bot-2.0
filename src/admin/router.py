@@ -6,6 +6,7 @@ from aiogram.filters.command import Command
 from aiogram.types.message import Message
 from aiogram.utils.formatting import Code, Text
 from aiogram.types.callback_query import CallbackQuery
+from admin.exceptions import BlankMessageException
 from admin.paginator.paginator import Paginator
 from admin.utils import get_args_from_command
 from admin.handlers import respond_to_get
@@ -73,15 +74,17 @@ async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> 
 
 
 @admin_commands_router.message(F.text, Command("get", prefix="/"))
-async def get_page_message(message: Message, paginator: Paginator) -> None:
+async def get_page_message(message: Message, paginator: Paginator) -> Message:
     if type(message) is Message and message.text:
         args_from_command: list[str] = get_args_from_command(command=message.text)
-        if args_from_command and args_from_command[0].isdecimal():
-            page: int = int(args_from_command[0])
-            await respond_to_get(
-                page=page, paginator=paginator, message=message, is_callback=False
-            )
+        page: int = int(args_from_command[0]) if args_from_command and args_from_command[0].isdecimal() else 1
 
+        return await respond_to_get(
+            page=page, paginator=paginator, message=message, is_callback=False
+        )
+    else:
+        logger.error("The message entity is blank")
+        raise BlankMessageException("The message entity is blank")
 
 @admin_commands_router.callback_query(AdminCallback.filter(F.action == "get_page"))
 async def get_page_callback(
