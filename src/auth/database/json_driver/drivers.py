@@ -27,6 +27,7 @@ class JSONConfigReader:
             raise WhitelistConfigValidationError(
                 "The config is likely to be empty or contain invalid data"
             )
+
     def is_in_database(self, user_id: int) -> bool:
         content: list[User] = self.get_whitelisted_users()
         return user_id in [user.id for user in content]
@@ -51,7 +52,7 @@ class JSONConfigWriter(JSONConfigReader):
 
     def add_whitelisted_user(self, user: User) -> User:
         return self._append_user_to_json_db(user)
-        
+
     def remove_whitelisted_user_by_id_if_exists(self, user_id: int) -> list[User]:
         if self.is_in_database(user_id):
             users: list[User] = self.get_whitelisted_users()
@@ -60,6 +61,28 @@ class JSONConfigWriter(JSONConfigReader):
                 self._rewrite_json_db(users=new_users)
                 return new_users
         return []
+
+    def promote_if_exists(self, user_id: int) -> User | None:
+        if self.is_in_database(user_id):
+            old_list: list[User] = self.get_whitelisted_users()
+
+            new_list: list[User] = [
+                (
+                    User(
+                        id=user.id,
+                        member_since=user.member_since,
+                        is_superuser=True,
+                        last_known_name=user.last_known_name,
+                    )
+                    if user.id == user_id
+                    else user
+                )
+                for user in old_list
+            ]
+            self._rewrite_json_db(users=new_list)
+            return next((user for user in new_list if user.id == user_id), None)
+        
+        return None
 
     def _append_user_to_json_db(self, user: User) -> User:
         try:
@@ -75,7 +98,7 @@ class JSONConfigWriter(JSONConfigReader):
             raise WhitelistConfigFileNotFound(
                 "The config file doesn't seem to exist. Have you renamed it to users.json?"
             )
-        
+
     def _rewrite_json_db(self, users: list[User]) -> list[User]:
         try:
             new_users: list[User] = users

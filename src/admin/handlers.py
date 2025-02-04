@@ -75,3 +75,14 @@ async def respond_to_remove(
     else:
         reply_text: Text = Text("The user ", Code(user_id), " is not in the database")
         return await message.answer(**reply_text.as_kwargs())
+
+async def respond_to_promote(
+    message: Message, db_writer: JSONConfigWriter, user_id: int
+) -> Message:
+    result: User | None = db_writer.promote_if_exists(user_id=user_id)
+    if result:
+        reply_text: Text = Text("The user ", Code(result.id), " has been promoted")
+        return await message.answer(**reply_text.as_kwargs())
+    else:
+        reply_text: Text = Text("The user ", Code(user_id), " is either not in database or already promoted")
+        return await message.answer(**reply_text.as_kwargs())
