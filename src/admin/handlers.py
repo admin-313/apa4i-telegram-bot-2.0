@@ -10,6 +10,8 @@ from admin.buttons import (
     get_paginator_last_page_markup,
     get_paginator_first_page_markup,
 )
+from auth.database.json_driver.drivers import JSONConfigWriter
+from auth.schemas import User
 
 
 logger = logging.getLogger(__name__)
@@ -42,11 +44,15 @@ async def respond_to_get(
     if is_callback:
         await message.edit_text(**response_text.as_kwargs())
         await message.edit_reply_markup(reply_markup=buttons)
-        logger.debug(f"Sending /get responce as callback to message {message.message_id}")
+        logger.debug(
+            f"Sending /get responce as callback to message {message.message_id}"
+        )
         return message
     else:
         if message.bot and message.from_user:
-            logger.debug(f"Sending /get responce as message to user {message.from_user.id}")
+            logger.debug(
+                f"Sending /get responce as message to user {message.from_user.id}"
+            )
             return await message.bot.send_message(
                 **response_text.as_kwargs(),
                 chat_id=message.chat.id,
@@ -55,3 +61,15 @@ async def respond_to_get(
         else:
             logger.error("Bot instance was not in Message")
             raise BotInstanceNotFound("Could not get bot out of the Message")
+
+
+async def respond_to_remove(
+    message: Message, db_writer: JSONConfigWriter, user_id: int
+) -> Message:
+    result: list[User] = db_writer.remove_whitelisted_user_by_id_if_exists(user_id=user_id)
+    if result:
+        reply_text: Text = Text("The user", Code(user_id), "has been revoked") 
+        return await message.answer(**reply_text.as_kwargs())
+    else:
+        reply_text: Text = Text("The user", Code(user_id), "is not in the database")
+        return await message.answer(**reply_text.as_kwargs())

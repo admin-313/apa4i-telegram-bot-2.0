@@ -6,10 +6,14 @@ from aiogram.filters.command import Command
 from aiogram.types.message import Message
 from aiogram.utils.formatting import Code, Text
 from aiogram.types.callback_query import CallbackQuery
-from admin.exceptions import MessageInstanceNotFound, UserInstanceNotFound, MessageIsEmpty
+from admin.exceptions import (
+    MessageInstanceNotFound,
+    UserInstanceNotFound,
+    MessageIsEmpty,
+)
 from admin.paginator.paginator import Paginator
 from admin.utils import get_args_from_command
-from admin.handlers import respond_to_get
+from admin.handlers import respond_to_get, respond_to_remove
 from admin.callbacks import AdminCallback
 from auth.admin_auth_middleware import AdminAuthMiddleware
 from auth.database.json_driver.drivers import JSONConfigReader, JSONConfigWriter
@@ -39,7 +43,7 @@ async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> 
     if not message.from_user:
         logger.error("Could not find caller's id")
         raise UserInstanceNotFound("Caller's telegram id doesn't appear to be there")
-    
+
     if type(message) is not Message:
         logger.error("message type mismatch")
         raise MessageInstanceNotFound(
@@ -115,3 +119,22 @@ async def get_page_callback(
     else:
         logger.error("The message entity is blank")
         raise MessageInstanceNotFound("The message entity is blank")
+
+
+@admin_commands_router.message(F.text, Command("rm", prefix="/"))
+async def process_remove_command(
+    message: Message, db_writer: JSONConfigWriter
+) -> Message:
+    if type(message) is Message and message.text:
+        args_from_command: list[str] = get_args_from_command(command=message.text)
+        if args_from_command and args_from_command[0].isdigit():
+            return await respond_to_remove(
+                db_writer=db_writer, message=message, user_id=int(args_from_command[0])
+            )
+        else:
+            reply_text: Text = Text(
+                "Invalid parameters passed. Example:\n", Code("/rm 822406371")
+            )
+            return await message.answer(**reply_text.as_kwargs())
+    else:
+        raise MessageInstanceNotFound("The message instance doesn't seem to exist")
