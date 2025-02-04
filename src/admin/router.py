@@ -77,7 +77,11 @@ async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> 
 async def get_page_message(message: Message, paginator: Paginator) -> Message:
     if type(message) is Message and message.text:
         args_from_command: list[str] = get_args_from_command(command=message.text)
-        page: int = int(args_from_command[0]) if args_from_command and args_from_command[0].isdecimal() else 1
+        page: int = (
+            int(args_from_command[0])
+            if args_from_command and args_from_command[0].isdecimal()
+            else 1
+        )
 
         return await respond_to_get(
             page=page, paginator=paginator, message=message, is_callback=False
@@ -86,13 +90,17 @@ async def get_page_message(message: Message, paginator: Paginator) -> Message:
         logger.error("The message entity is blank")
         raise MessageInstanceNotFound("The message entity is blank")
 
+
 @admin_commands_router.callback_query(AdminCallback.filter(F.action == "get_page"))
 async def get_page_callback(
     callback: CallbackQuery, callback_data: AdminCallback, paginator: Paginator
-) -> None:
+) -> Message:
     message = callback.message
     if type(message) is Message and message.text:
         page: int = callback_data.target_page
-        await respond_to_get(
+        return await respond_to_get(
             page=page, message=message, paginator=paginator, is_callback=True
         )
+    else:
+        logger.error("The message entity is blank")
+        raise MessageInstanceNotFound("The message entity is blank")
