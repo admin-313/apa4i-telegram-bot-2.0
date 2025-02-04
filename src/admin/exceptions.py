@@ -1,7 +1,7 @@
 class AdminRouterException(Exception):
     pass
 
-class BlankMessageException(AdminRouterException):
+class MessageInstanceNotFound(AdminRouterException):
     pass
 
 class BotInstanceNotFound(AdminRouterException):

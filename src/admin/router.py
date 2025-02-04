@@ -6,7 +6,7 @@ from aiogram.filters.command import Command
 from aiogram.types.message import Message
 from aiogram.utils.formatting import Code, Text
 from aiogram.types.callback_query import CallbackQuery
-from admin.exceptions import BlankMessageException
+from admin.exceptions import MessageInstanceNotFound
 from admin.paginator.paginator import Paginator
 from admin.utils import get_args_from_command
 from admin.handlers import respond_to_get
@@ -84,7 +84,7 @@ async def get_page_message(message: Message, paginator: Paginator) -> Message:
         )
     else:
         logger.error("The message entity is blank")
-        raise BlankMessageException("The message entity is blank")
+        raise MessageInstanceNotFound("The message entity is blank")
 
 @admin_commands_router.callback_query(AdminCallback.filter(F.action == "get_page"))
 async def get_page_callback(
