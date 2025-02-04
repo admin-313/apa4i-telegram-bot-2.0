@@ -27,6 +27,9 @@ class JSONConfigReader:
             raise WhitelistConfigValidationError(
                 "The config is likely to be empty or contain invalid data"
             )
+    def is_in_database(self, user_id: int) -> bool:
+        content: list[User] = self.get_whitelisted_users()
+        return user_id in [user.id for user in content]
 
     def _get_users_db_content(self) -> str:
         try:
@@ -48,6 +51,9 @@ class JSONConfigWriter(JSONConfigReader):
 
     def add_whitelisted_user(self, user: User) -> User:
         return self._append_to_json_db(user)
+        
+    def remove_whitelisted_user_if_exists(self, user: User) -> User:
+        pass
 
     def _append_to_json_db(self, user: User) -> User:
         try:
