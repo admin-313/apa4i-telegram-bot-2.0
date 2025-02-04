@@ -39,7 +39,6 @@ admin_commands_router.callback_query.middleware(admin_auth_middleware)
 
 @admin_commands_router.message(F.text, Command("add", prefix="/"))
 async def process_add_command(message: Message, db_writer: JSONConfigWriter) -> Message:
-    # Rewrite args parser for the get_args
     if not message.from_user:
         logger.error("Could not find caller's id")
         raise UserInstanceNotFound("Caller's telegram id doesn't appear to be there")
