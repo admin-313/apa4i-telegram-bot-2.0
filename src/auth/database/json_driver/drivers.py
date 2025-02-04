@@ -81,7 +81,7 @@ class JSONConfigWriter(JSONConfigReader):
             ]
             self._rewrite_json_db(users=new_list)
             return next((user for user in new_list if user.id == user_id), None)
-        
+
         return None
 
     def _append_user_to_json_db(self, user: User) -> User:
