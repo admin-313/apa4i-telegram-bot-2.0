@@ -3,8 +3,8 @@ Refactored and updated version of bot beloved by hundreds and admired by thousan
 
 # TODO
 - [ ] **Add SQLite support**
-    - [ ] **Add SQLAlchemy**
-    - [ ] **Add migrations via alembic**
+    - [x] **Add SQLAlchemy**
+    - [x] **Add migrations via alembic**
 - [ ] **Add Docker support**
 - [ ] **Rewrite using Clean Architecture design approach**
 
