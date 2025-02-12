@@ -6,7 +6,7 @@ from sqlalchemy import String
 from infrastructure.persistence.models.base import Base
 
 
-class User(Base):
+class UserModel(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
