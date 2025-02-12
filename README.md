@@ -5,6 +5,7 @@ Refactored and updated version of bot beloved by hundreds and admired by thousan
 - [ ] **Add SQLite support**
     - [x] **Add SQLAlchemy**
     - [x] **Add migrations via alembic**
+    - [ ] **Add Repository logic for the User repository with injecting the session**
 - [ ] **Add Docker support**
 - [ ] **Rewrite using Clean Architecture design approach**
 
