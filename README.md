@@ -20,3 +20,6 @@ Add the following variables to your environment via docker compose or via your I
 Example: 3978450032 <-- Will add administrator permission to user with that id 
 
 **LINK_TO_FB_PARSER** IP or domain name of your token getter microservice [Link to mine](https://github.com/admin-313/fb-cookies-microservice)
+
+**Useful links**
+- [Why using yield instead of return in SQLAlchemy](https://stackoverflow.com/questions/64763770/why-we-use-yield-to-get-sessionlocal-in-fastapi-with-sqlalchemy#:~:text=It%E2%80%99s%20a%20great%20question%2C%20the,connection%20for%20all%20your%20app) 
