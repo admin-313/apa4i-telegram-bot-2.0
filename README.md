@@ -26,3 +26,4 @@ Example: 3978450032 <-- Will add administrator permission to user with that id
 - [Why using yield instead of return in SQLAlchemy](https://stackoverflow.com/questions/64763770/why-we-use-yield-to-get-sessionlocal-in-fastapi-with-sqlalchemy#:~:text=It%E2%80%99s%20a%20great%20question%2C%20the,connection%20for%20all%20your%20app)
 
 - [Using session factory](https://docs.sqlalchemy.org/en/20/orm/session_basics.html#using-a-sessionmaker)
+- [Using Duck typing](https://peps.python.org/pep-0544/#protocol-members)
