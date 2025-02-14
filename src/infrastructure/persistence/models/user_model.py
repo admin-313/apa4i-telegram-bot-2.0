@@ -9,7 +9,9 @@ from infrastructure.persistence.models.base import Base
 class UserModel(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
+    id: Mapped[int] = mapped_column(
+        primary_key=True, nullable=False, autoincrement=True
+    )
     member_since: Mapped[datetime]
     is_superuser: Mapped[bool] = mapped_column(nullable=False)
     last_known_name: Mapped[str] = mapped_column(String(23), nullable=True)
