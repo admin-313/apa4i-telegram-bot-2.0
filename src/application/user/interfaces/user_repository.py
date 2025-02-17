@@ -15,7 +15,7 @@ class UserReader(Protocol):
         raise NotImplementedError
 
 
-class UserReadWrite(UserReader, Protocol):
+class UserWriter(Protocol):
     @abstractmethod
     async def add_user(self, user: User) -> None:
         raise NotImplementedError
