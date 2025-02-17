@@ -14,8 +14,8 @@ class Database(ABC, Generic[SessionType]):
 
     @abstractmethod
     def get_session(self) -> AsyncContextManager[SessionType]:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     async def dispose(self) -> None:
-        pass
+        raise NotImplementedError
