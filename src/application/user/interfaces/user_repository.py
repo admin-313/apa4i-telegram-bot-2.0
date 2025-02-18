@@ -14,6 +14,10 @@ class UserReader(Protocol):
     async def is_in_database(self, user_id: UserId) -> bool:
         raise NotImplementedError
 
+    @abstractmethod
+    async def is_admin(self, user_id: UserId) -> bool:
+        raise NotImplementedError
+
 
 class UserWriter(Protocol):
     @abstractmethod
