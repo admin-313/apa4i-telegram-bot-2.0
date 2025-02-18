@@ -5,7 +5,6 @@ from typing import Protocol
 from application.common.interactor import Interactor
 from application.user.interfaces.user_repository import UserWriter
 from domain.models.user_id import UserId
-from domain.services.user import UserService
 
 
 @dataclass(frozen=True)
@@ -18,9 +17,8 @@ class UserWriteRepository(UserWriter, Protocol):
 
 
 class DemoteUser(Interactor[DemoteUserDTO, UserId]):
-    def __init__(self, user_writer: UserWriteRepository, user_service: UserService) -> None:
+    def __init__(self, user_writer: UserWriteRepository) -> None:
         self._user_writer = user_writer
-        self._user_service = user_service
 
     async def __call__(self, data: DemoteUserDTO) -> UserId:
         await self._user_writer.demote_user(user_id=data.user_id)
