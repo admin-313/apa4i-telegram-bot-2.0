@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol
+
 from application.common.interactor import Interactor
 from application.user.interfaces.user_repository import UserWriter
 from domain.models.user_id import UserId
@@ -10,12 +10,8 @@ class RemoveUserDTO:
     user_id: UserId
 
 
-class UserWriteRepository(UserWriter, Protocol):
-    pass
-
-
 class RemoveUser(Interactor[RemoveUserDTO, UserId]):
-    def __init__(self, user_writer: UserWriteRepository) -> None:
+    def __init__(self, user_writer: UserWriter) -> None:
         self._user_writer = user_writer
 
     async def __call__(self, data: RemoveUserDTO) -> UserId:

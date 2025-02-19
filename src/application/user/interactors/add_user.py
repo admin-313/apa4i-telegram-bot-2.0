@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Protocol, Optional
+from typing import Optional
 
 from domain.models.user import User
 from domain.services.user import UserService
@@ -16,14 +16,8 @@ class AddUserDTO:
     last_known_name: Optional[str]
 
 
-class UserWriteRepository(UserWriter, Protocol):
-    pass
-
-
 class AddUser(Interactor[AddUserDTO, None]):
-    def __init__(
-        self, user_writer: UserWriteRepository, user_service: UserService
-    ) -> None:
+    def __init__(self, user_writer: UserWriter, user_service: UserService) -> None:
         self._user_writer = user_writer
         self._user_service = user_service
 

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Protocol
 
 from application.common.interactor import Interactor
 from application.user.interfaces.user_repository import UserWriter
@@ -11,12 +10,8 @@ class PromoteUserDTO:
     user_id: UserId
 
 
-class UserWriteRepository(UserWriter, Protocol):
-    pass
-
-
 class PromoteUser(Interactor[PromoteUserDTO, UserId]):
-    def __init__(self, user_writer: UserWriteRepository) -> None:
+    def __init__(self, user_writer: UserWriter) -> None:
         self._user_writer = user_writer
 
     async def __call__(self, data: PromoteUserDTO) -> UserId:

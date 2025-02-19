@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Protocol
 
 from application.common.interactor import Interactor
 from application.user.interfaces.user_repository import UserReader
@@ -11,12 +10,8 @@ class IsWhitelistedDTO:
     user_id: UserId
 
 
-class UserReadRepository(UserReader, Protocol):
-    pass
-
-
 class IsWhitelisted(Interactor[IsWhitelistedDTO, bool]):
-    def __init__(self, user_reader: UserReadRepository) -> None:
+    def __init__(self, user_reader: UserReader) -> None:
         self._user_reader = user_reader
 
     async def __call__(self, data: IsWhitelistedDTO) -> bool:
