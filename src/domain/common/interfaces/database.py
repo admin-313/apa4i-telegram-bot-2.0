@@ -13,7 +13,7 @@ class Database(ABC, Generic[SessionType]):
     in the infrastructure layer"""
 
     @abstractmethod
-    def get_session(self) -> AsyncContextManager[SessionType]:
+    async def get_session(self) -> AsyncContextManager[SessionType]:
         raise NotImplementedError
 
     @abstractmethod
