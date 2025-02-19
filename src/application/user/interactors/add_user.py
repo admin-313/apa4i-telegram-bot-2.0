@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
+from application.common.commiter import Commiter
 from domain.models.user import User
 from domain.services.user import UserService
 from application.common.interactor import Interactor
@@ -17,9 +18,12 @@ class AddUserDTO:
 
 
 class AddUser(Interactor[AddUserDTO, None]):
-    def __init__(self, user_writer: UserWriter, user_service: UserService) -> None:
+    def __init__(
+        self, user_writer: UserWriter, user_service: UserService, commiter: Commiter
+    ) -> None:
         self._user_writer = user_writer
         self._user_service = user_service
+        self._commiter = commiter
 
     async def __call__(self, data: AddUserDTO) -> None:
         new_user: User = self._user_service.create_user(
@@ -28,3 +32,4 @@ class AddUser(Interactor[AddUserDTO, None]):
             last_known_name=data.last_known_name,
         )
         await self._user_writer.add_user(user=new_user)
+        await self._commiter.commit()
