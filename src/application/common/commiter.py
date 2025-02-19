@@ -2,7 +2,7 @@ from typing import Protocol
 from abc import abstractmethod
 
 
-class Comitter(Protocol):
+class Commiter(Protocol):
     @abstractmethod
     async def commit(self) -> None:
         raise NotImplementedError
